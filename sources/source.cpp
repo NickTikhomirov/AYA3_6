@@ -3,12 +3,14 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
-#include "picosha2.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/sinks.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/setup.hpp>
+
+#include "picosha2.h"
+
 
 using std::thread;
 using std::atoi;
