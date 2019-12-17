@@ -9,11 +9,6 @@ before_script:
 
 jobs:
   include:
-    - name: "make"
-      script:
-        - cmake -H. -B.build
-        - cmake --build .build
-        - ./.build/main
     - name: "checks"
       script:
         - chmod 755 scripts/*.sh

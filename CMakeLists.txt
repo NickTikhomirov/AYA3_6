@@ -25,8 +25,9 @@ string(APPEND CMAKE_CXX_FLAGS " -Wno-unused-command-line-argument")
 string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
 hunter_add_package(GTest)
 find_package(GTest CONFIG REQUIRED)
-hunter_add_package(Boost COMPONENTS log system thread)
-find_package(Boost CONFIG REQUIRED log log_setup system thread)
+hunter_add_package(Boost COMPONENTS filesystem log system thread)
+find_package(Boost CONFIG REQUIRED filesystem log log_setup system thread)
+find_package(Threads)
 
 
 
@@ -46,13 +47,15 @@ target_include_directories(main
 )
 
 target_include_directories(main
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third-party
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third-party/PicoSHA2
 )
 
 
 
-target_include_directories(main
-  PUBLIC ${Boost_ROOT}/include
+target_link_libraries(main 
+        Boost::log_setup
+        Boost::log
+        Boost::thread
+        Boost::filesystem
+        Boost::system
 )
-
-target_link_libraries(main Boost::log Boost::log_setup)
