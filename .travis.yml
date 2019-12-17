@@ -9,7 +9,7 @@ before_script:
 
 jobs:
   include:
-  - name: "checks"
+	- name: "make"
       script:
         - cmake -H. -B.build
         - cmake --build .build

@@ -6,7 +6,6 @@
 #include "../third-party/PicoSHA2/picosha2.h"
 
 #include <boost/log/trivial.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/log/sinks.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/setup.hpp>
@@ -15,9 +14,12 @@ using std::thread;
 using std::atoi;
 using std::vector;
 using std::cout;
+using std::string;
+using std::size_t;
+using std::to_string;
+using std::rand;
 
-
-void init() {
+void init_logs() {
 	boost::log::register_simple_formatter_factory< boost::log::trivial::severity_level, char >("Severity");
 
 	auto log = boost::log::add_file_log(
@@ -33,48 +35,30 @@ void init() {
 }
 
 void logs() {
-	std::string ch = "0000";
-	std::string str = std::to_string(std::rand());
-	std::string hash = picosha2::hash256_hex_string(str);
-	std::string lastChar = hash.substr(hash.size() - ch.size());
-	if (lastChar == ch)
-		BOOST_LOG_TRIVIAL(info) << "0000 founded in hash '" << hash << "' of string '" << str << "'";
+	srand(time(NULL));
+	static const string ideal("0000");
+	string str = to_string(rand());
+	string hash = picosha2::hash256_hex_string(str);
+	if (hash.substr(hash.size() - ideal.size()) == ideal)
+		BOOST_LOG_TRIVIAL(info) << "Positive result: " << hash << ", which is result of string " << str << "\n";
 	else
-		BOOST_LOG_TRIVIAL(trace) << "Hash '" << hash << "' get from string'" << str << "'";
+		BOOST_LOG_TRIVIAL(trace) << "Non-positive result: " << hash << "' get from string'" << str << "'";
 }
 
 int main(int argc, char* argv[]) {
+	size_t M = thread::hardware_concurrency;
+	if (argc > 1)
+		M = atoi(argv[1]);
 	cout << "hello";
-	if (false) {
-		size_t count;
-		srand(time(NULL));
-		init();
-		boost::log::add_common_attributes();
-
-		if (argc >= 2) {
-			count = boost::lexical_cast<size_t>(argv[1]);
-		}
-		else {
-			count = boost::thread::hardware_concurrency();
-		}
-		BOOST_LOG_TRIVIAL(trace) << "Threads count" << count;
-
-		std::vector<boost::thread> thrs;
-		thrs.resize(count);
-
-		for (size_t i = 0; i < count; i++)
-			thrs.emplace_back(logs);
-		for (boost::thread& thread : thrs)
-			thread.join();
-		return 0;
-	}
+	init_logs();
+	boost::log::add_common_attributes();
+	BOOST_LOG_TRIVIAL(trace) << "Threads amount: " << count;
+	vector<thread> thrs;
+	thrs.resize(count);
+	for (size_t i = 0; i < M; i++)
+		thrs.emplace_back(logs);
+	for (thread& th : thrs)
+		th.join();
+	return 0;
 }
 
-
-
-//int main(int argc, char* argv[]) {
-//	int M = thread::hardware_concurrency;
-//	if (argc > 1)
-//		M = atoi(argv[1]);
-//	
-//}
